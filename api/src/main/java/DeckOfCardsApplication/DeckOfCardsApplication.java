@@ -1,11 +1,13 @@
 package DeckOfCardsApplication;
 
-import com.sun.tools.javac.Main;
-import org.springframework.boot.SpringApplication;
+import DeckOfCardsApplication.objects.Card;
+import DeckOfCardsApplication.objects.Hand;
+import DeckOfCardsApplication.services.DeckOfCardsService;
+import jdk.swing.interop.SwingInterOpUtils;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.web.client.RestTemplate;
+
+import java.util.List;
 
 @SpringBootApplication
 @EnableFeignClients
@@ -18,16 +20,26 @@ public class DeckOfCardsApplication {
 		String deckId = deckOfCardsService.createDeck();
 		System.out.println("Baralho criado! ID: " + deckId);
 
-		// Tirar 5 cartas do baralho
-		int numCardsToDraw = 5;
-		CardResponse cardResponse = deckOfCardsService.drawCards(deckId, numCardsToDraw);
+
+		/*int numCardsToDraw = 5;
+		Hand hand = deckOfCardsService.drawCards(deckId, numCardsToDraw);
 
 		System.out.println("Cartas tiradas do baralho:");
-		for (Card card : cardResponse.getCards()) {
+		for (Card card : hand.getCards()) {
 			System.out.println("Carta: " + card.getValue() + " de " + card.getSuit());
+		} */
+
+		List<Hand> hands = deckOfCardsService.createFiveHands(deckId);
+
+		for (int i = 0; i < hands.size(); i++){
+			System.out.print("Jogador " + (i +1 )+ "= [");
+			 hands.get(i).getCards().forEach(card -> System.out.print(card.getValue()+ ","));
+			System.out.print("]");
+			System.out.println();
 		}
 
-		int remainingCards = cardResponse.getRemaining();
+
+		int remainingCards = deckOfCardsService.CardsRemaining(deckId);
 		System.out.println("Cartas restantes no baralho: " + remainingCards);
 
 	}
