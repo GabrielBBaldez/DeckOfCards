@@ -1,4 +1,4 @@
-package DeckOfCardsApplication;
+package DeckOfCardsApplication.objects;
 
 public class Card {
     private String value;
