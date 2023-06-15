@@ -1,6 +1,6 @@
 package klab.DeckOfCards.api;
 
-import DeckOfCardsApplication.objects.Hand;
+import DeckOfCardsApplication.model.Hand;
 import DeckOfCardsApplication.services.DeckOfCardsService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

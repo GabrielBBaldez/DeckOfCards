@@ -1,4 +1,4 @@
-package DeckOfCardsApplication.objects;
+package DeckOfCardsApplication.model;
 
 import lombok.Data;
 

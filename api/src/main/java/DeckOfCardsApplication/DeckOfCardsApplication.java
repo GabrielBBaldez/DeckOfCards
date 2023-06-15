@@ -1,6 +1,7 @@
 package DeckOfCardsApplication;
 
 import DeckOfCardsApplication.services.DeckOfCardsService;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import java.util.Scanner;
@@ -12,6 +13,7 @@ import java.util.List;
 public class DeckOfCardsApplication {
 
 	public static void main(String[] args) {
+		SpringApplication.run(DeckOfCardsApplication.class, args);
 		DeckOfCardsService deckOfCardsService = new DeckOfCardsService();
 		Scanner scanner = new Scanner(System.in);
 		boolean jogarNovamente = true;

@@ -1,4 +1,4 @@
-package DeckOfCardsApplication.objects;
+package DeckOfCardsApplication.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
