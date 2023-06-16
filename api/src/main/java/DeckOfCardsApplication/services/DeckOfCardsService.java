@@ -1,6 +1,6 @@
 package DeckOfCardsApplication.services;
 
-import DeckOfCardsApplication.enums.ApiUrls;
+import DeckOfCardsApplication.enums.DeckOfCardsApiEndpoints;
 import DeckOfCardsApplication.model.*;
 import DeckOfCardsApplication.repository.GameRepository;
 import DeckOfCardsApplication.repository.GameplayerRepository;
@@ -36,10 +36,10 @@ public class DeckOfCardsService {
     }
 
     public String createDeck() {
-        String newDeckUrl = ApiUrls.CREATE_DECK.getUrl();
+        String newDeckUrl = DeckOfCardsApiEndpoints.CREATE_DECK.getUrl();
         DeckIdResponse deckIdResponse = restTemplate.getForObject(newDeckUrl, DeckIdResponse.class);
         if (deckIdResponse != null) {
-            String shuffleDeckUrl = ApiUrls.DECK_SHUFFLE.getUrl();
+            String shuffleDeckUrl = DeckOfCardsApiEndpoints.DECK_SHUFFLE.getUrl();
             restTemplate.getForObject(shuffleDeckUrl, String.class, deckIdResponse.getDeckId());
             return deckIdResponse.getDeckId();
         } else {
@@ -48,7 +48,7 @@ public class DeckOfCardsService {
     }
 
     public Hand drawCards(String deckId, int numCards) {
-        String url = ApiUrls.DRAW_CARDS.getUrl();
+        String url = DeckOfCardsApiEndpoints.DRAW_CARDS.getUrl();
         Hand response = restTemplate.getForObject(url, Hand.class, deckId, numCards);
         int totalSum = 0;
 
@@ -80,7 +80,7 @@ public class DeckOfCardsService {
     }
 
     public int CardsRemaining(String deckId) {
-        String url = ApiUrls.CARDS_REMAINING.getUrl();
+        String url = DeckOfCardsApiEndpoints.CARDS_REMAINING.getUrl();
         CardsRemaining cardsRemaining = restTemplate.getForObject(url, CardsRemaining.class, deckId);
         return cardsRemaining.getRemaining();
     }
