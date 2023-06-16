@@ -1,108 +1,151 @@
 package DeckOfCardsApplication.services;
 
 import DeckOfCardsApplication.enums.ApiUrls;
-import DeckOfCardsApplication.objects.*;
+import DeckOfCardsApplication.model.*;
+import DeckOfCardsApplication.repository.GameRepository;
+import DeckOfCardsApplication.repository.GameplayerRepository;
+import DeckOfCardsApplication.repository.PlayerRepository;
+import DeckOfCardsApplication.repository.WinnerRepository;
+import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Service
-    public class DeckOfCardsService {
+public class DeckOfCardsService {
 
-        private final RestTemplate restTemplate;
+    @Autowired
+    private GameRepository gameRepository;
+    @Autowired
+    private PlayerRepository playerRepository;
+    @Autowired
+    private GameplayerRepository gameplayerRepository;
+    @Autowired
+    private WinnerRepository winnerRepository;
 
-        public DeckOfCardsService() {
-            this.restTemplate = new RestTemplate();
+    private RestTemplate restTemplate;
+
+    public DeckOfCardsService() {
+        this.restTemplate = new RestTemplate();
+    }
+
+    public String createDeck() {
+        String newDeckUrl = ApiUrls.CREATE_DECK.getUrl();
+        DeckIdResponse deckIdResponse = restTemplate.getForObject(newDeckUrl, DeckIdResponse.class);
+        if (deckIdResponse != null) {
+            String shuffleDeckUrl = ApiUrls.DECK_SHUFFLE.getUrl();
+            restTemplate.getForObject(shuffleDeckUrl, String.class, deckIdResponse.getDeckId());
+            return deckIdResponse.getDeckId();
+        } else {
+            throw new RuntimeException("Falha ao criar o baralho.");
         }
+    }
 
-        public String createDeck() {
-            String newDeckUrl = ApiUrls.CREATE_DECK.getUrl();
-            DeckIdResponse deckIdResponse = restTemplate.getForObject(newDeckUrl, DeckIdResponse.class);
-            if (deckIdResponse != null) {
-                String shuffleDeckUrl = ApiUrls.DECK_SHUFFLE.getUrl();
-                restTemplate.getForObject(shuffleDeckUrl, String.class, deckIdResponse.getDeckId());
-                return deckIdResponse.getDeckId();
-            } else {
-                throw new RuntimeException("Falha ao criar o baralho.");
+    public Hand drawCards(String deckId, int numCards) {
+        String url = ApiUrls.DRAW_CARDS.getUrl();
+        Hand response = restTemplate.getForObject(url, Hand.class, deckId, numCards);
+        int totalSum = 0;
+
+        // Mapear valores das cartas para valores numéricos
+        Map<String, String> cardValuesMap = createCardValuesMap();
+
+        // Verificar cada carta e converter o valor conforme o mapeamento
+        for (Card card : response.getCards()) {
+            String value = card.getValue();
+            if (cardValuesMap.containsKey(value)) {
+                card.setValue(cardValuesMap.get(value));
             }
         }
+        int sum = response.getCards().stream()
+                .mapToInt(card -> Integer.parseInt(card.getValue()))
+                .sum();
+        response.setTotalSum(sum);
 
-        public Hand drawCards(String deckId, int numCards) {
-            String url = ApiUrls.DRAW_CARDS.getUrl();
-            Hand response = restTemplate.getForObject(url, Hand.class, deckId, numCards);
+        return response;
+    }
 
-            // Mapear valores das cartas para valores numéricos
-            Map<String, String> cardValuesMap = new HashMap<>();
-            cardValuesMap.put("ACE", "1");
-            cardValuesMap.put("JACK", "11");
-            cardValuesMap.put("QUEEN", "12");
-            cardValuesMap.put("KING", "13");
+    private Map<String, String> createCardValuesMap() {
+        Map<String, String> cardValuesMap = new HashMap<>();
+        cardValuesMap.put("ACE", "1");
+        cardValuesMap.put("JACK", "11");
+        cardValuesMap.put("QUEEN", "12");
+        cardValuesMap.put("KING", "13");
+        return cardValuesMap;
+    }
 
-            // Verificar cada carta e converter o valor conforme o mapeamento
-            for (Card card : response.getCards()) {
-                String value = card.getValue();
-                if (cardValuesMap.containsKey(value)) {
-                    card.setValue(cardValuesMap.get(value));
-                }
-            }
+    public int CardsRemaining(String deckId) {
+        String url = ApiUrls.CARDS_REMAINING.getUrl();
+        CardsRemaining cardsRemaining = restTemplate.getForObject(url, CardsRemaining.class, deckId);
+        return cardsRemaining.getRemaining();
+    }
 
-            return response;
+    public List<Hand> createPlayersAndFiveHands(String deckId) {
+        List<Hand> hands = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Hand hand = drawCards(deckId, 5);
+            hands.add(hand);
+            Player player = new Player();
+            player.setName("Jogador: " + String.valueOf(i + 1));
+            hand.setPlayer(player);
         }
-        public int CardsRemaining(String deckId){
-            String url = ApiUrls.CARDS_REMAINING.getUrl();
-            CardsRemaining cardsRemaining= restTemplate.getForObject(url, CardsRemaining.class, deckId);
-            return cardsRemaining.getRemaining();
-        }
-
-        public List<Hand> createPlayersAndFiveHands(String deckId){
-            List<Hand> hands = new ArrayList<>();
-            for (int i = 0; i < 5; i++) {
-                Hand hand = drawCards(deckId,5);
-                hands.add(hand);
-                Player player = new Player();
-                player.setName("Jogador: " + String.valueOf(i + 1) );
-                hand.setPlayer(player);
-            }
-            return hands;
-        }
-
-    public void playDeckOfCards() {
-
-
+        return hands;
+    }
+    @Transactional
+    public String playDeckOfCards() {
+        Game game = new Game(LocalDate.now());
+        gameRepository.save(game);
         String deckId = createDeck();
         List<Hand> hands = createPlayersAndFiveHands(deckId);
         int highestSum = Integer.MIN_VALUE;
         List<String> highestSumPlayers = new ArrayList<>();
 
-        for (Hand handList : hands) {
-            int sum = 0;
-            for (Card cards : handList.getCards()) {
-                int cardValue = Integer.parseInt(cards.getValue());
-                sum += cardValue;
-            }
-            if (sum > highestSum) {
-                highestSum = sum;
+        for (Hand hand : hands) {
+            Player player = hand.getPlayer();
+            playerRepository.save(player);
+
+            GamePlayer gamePlayer = new GamePlayer(game, player);
+            gameplayerRepository.save(gamePlayer);
+
+            int totalSum = hand.getCards().stream()
+                    .mapToInt(card -> Integer.parseInt(card.getValue()))
+                    .sum();
+
+            hand.setTotalSum(totalSum);
+
+            if (totalSum > highestSum) {
+                highestSum = totalSum;
                 highestSumPlayers.clear();
-                highestSumPlayers.add(handList.getPlayer().getName());
-            } else if (sum == highestSum) {
-                highestSumPlayers.add(handList.getPlayer().getName());
+                highestSumPlayers.add(player.getName());
+            } else if (totalSum == highestSum) {
+                highestSumPlayers.add(player.getName());
             }
         }
+
+        for (Hand hand : hands) {
+            if (highestSumPlayers.contains(hand.getPlayer().getName())) {
+                Winner winner = new Winner(game, hand.getPlayer(), hand.getTotalSum());
+                winnerRepository.save(winner);
+            }
+        }
+
         StringBuilder result = new StringBuilder();
         if (highestSumPlayers.size() == 1) {
             result.append("Vencedor é ").append(highestSumPlayers.get(0)).append(" com ").append(highestSum).append(" pontos");
         } else {
             result.append("Empate entre os jogadores: ");
-            for (String players : highestSumPlayers) {
-                result.append(players).append(" ");
+            for (String player : highestSumPlayers) {
+                result.append(player).append(" ");
             }
             result.append("com ").append(highestSum).append(" pontos");
         }
-        System.out.println(result);
+
+        return result.toString();
     }
 }
 
