@@ -1,6 +1,6 @@
 package DeckOfCardsApplication.enums;
 
-public enum ApiUrls {
+public enum DeckOfCardsApiEndpoints {
     CREATE_DECK("https://deckofcardsapi.com/api/deck/new/"),
     DRAW_CARDS("https://deckofcardsapi.com/api/deck/{deckId}/draw/?count={numCards}"),
     CARDS_REMAINING("https://deckofcardsapi.com/api/deck/{deckId}"),
@@ -8,7 +8,7 @@ public enum ApiUrls {
 
     private final String url;
 
-    ApiUrls(String url) {
+    DeckOfCardsApiEndpoints(String url) {
         this.url = url;
     }
 
