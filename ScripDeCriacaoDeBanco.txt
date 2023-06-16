@@ -9,10 +9,11 @@ CREATE DATABASE "Klab"
     IS_TEMPLATE = False;
 
 CREATE TABLE public.game (
-    id serial NOT NULL,
-    game_date date NULL,
-    CONSTRAINT game_pkey PRIMARY KEY (id)
+	id serial NOT NULL,
+	game_date date NULL,
+	CONSTRAINT game_pkey PRIMARY KEY (id)
 );
+
 CREATE TABLE public.player (
 	id serial NOT NULL,
 	"name" varchar(255) NULL,
@@ -20,7 +21,7 @@ CREATE TABLE public.player (
 );
 
 CREATE TABLE public.gameplayer (
-	id int NOT NULL,
+	id serial NOT NULL,
 	game_id int NULL,
 	player_id int NULL,
 	CONSTRAINT gameplayer_pkey PRIMARY KEY (id),
@@ -29,7 +30,7 @@ CREATE TABLE public.gameplayer (
 );
 
 CREATE TABLE public.winner (
-	id int NOT NULL,
+	id serial NOT NULL,
 	score int NOT NULL,
 	game_id int NULL,
 	player_id int NULL,
