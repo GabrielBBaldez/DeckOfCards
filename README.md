@@ -34,5 +34,5 @@ Este projeto consiste na criação de uma REST API em conjunto com a API deckofc
 
 ## Como Utilizar
 
-1. Faça uma requisição POST para o endpoint `http://localhost:8080/decks`.
+1. Faça uma requisição POST para o endpoint `http://localhost:8080/decks` usando Insomnia ou Postman
 2. Aguarde a resposta da API, que retornará o vencedor do jogo com todos os dados já salvos no banco.
