@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 
-public class testCreatePlayersAndFiveHands {
+public class CreatePlayersAndFiveHandsTest {
     @Test
     public void testCreatePlayersAndFiveHands() {
         DeckOfCardsService deckOfCardsService = new DeckOfCardsService();

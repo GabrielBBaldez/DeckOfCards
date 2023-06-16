@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 public class DrawCardsTest {
     @Test
-    public void testGetFiveCards() {
+    public void testDrawCards() {
         DeckOfCardsService deckOfCardsService = new DeckOfCardsService();
 
         String deckId = deckOfCardsService.createDeck();
