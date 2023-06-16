@@ -4,7 +4,7 @@ Este projeto consiste na criação de uma REST API em conjunto com a API deckofc
 
 ## Documentação da API
 
-#### Retorna o vencedor do jogo com todos os dados já salvos no banco
+#### Retorna o vencedor do jogo com todos os dados já salvos no banco, caso tenha empate é mostrado na tela todos os jogadores e aqueles que empataram
 ```http
   Post http://localhost:8080/decks
 ```
