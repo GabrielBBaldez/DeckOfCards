@@ -28,7 +28,7 @@ Este projeto consiste na criação de uma REST API em conjunto com a API deckofc
 3. Instale o PostgreSQL e crie um banco de dados para a aplicação.
 4. Importe o projeto para o IntelliJ IDEA.
 5. Criar o banco de dados no Postgre, CREATE DATABASE "Klab"
-6. As tabelas são criadas automaticamente apos o primeiro start na aplicação.
+6. As tabelas são criadas automaticamente após o primeiro start na aplicação.
 7. Execute a aplicação.
 8. Script do banco de dados no projeto.
 
