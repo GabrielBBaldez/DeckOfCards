@@ -20,7 +20,7 @@ CREATE TABLE public.player (
 );
 
 CREATE TABLE public.gameplayer (
-	id bigserial NOT NULL,
+	id int NOT NULL,
 	game_id int NULL,
 	player_id int NULL,
 	CONSTRAINT gameplayer_pkey PRIMARY KEY (id),
@@ -29,7 +29,7 @@ CREATE TABLE public.gameplayer (
 );
 
 CREATE TABLE public.winner (
-	id bigserial NOT NULL,
+	id int NOT NULL,
 	score int NOT NULL,
 	game_id int NULL,
 	player_id int NULL,
