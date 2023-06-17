@@ -20,7 +20,7 @@ public class DeckController {
     }
 
     @PostMapping
-    public ResponseEntity<String> createDeck() {
+    public ResponseEntity<String> playDeckOfCards() {
         try {
             String result = deckOfCardsService.playDeckOfCards();
             return ResponseEntity.ok(result);

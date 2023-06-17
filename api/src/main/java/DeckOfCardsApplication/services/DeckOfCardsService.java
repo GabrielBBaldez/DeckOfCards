@@ -1,6 +1,8 @@
 package DeckOfCardsApplication.services;
 
 import DeckOfCardsApplication.enums.DeckOfCardsApiEndpoints;
+import DeckOfCardsApplication.exception.DeckCreationException;
+import DeckOfCardsApplication.exception.EmptyDeckException;
 import DeckOfCardsApplication.model.*;
 import DeckOfCardsApplication.repository.GameRepository;
 import DeckOfCardsApplication.repository.GameplayerRepository;
@@ -43,13 +45,25 @@ public class DeckOfCardsService {
             restTemplate.getForObject(shuffleDeckUrl, String.class, deckIdResponse.getDeckId());
             return deckIdResponse.getDeckId();
         } else {
-            throw new RuntimeException("Falha ao criar o baralho.");
+            throw new DeckCreationException();
         }
+    }
+
+    private Map<String, String> createCardValuesMap() {
+        Map<String, String> cardValuesMap = new HashMap<>();
+        cardValuesMap.put("ACE", "1");
+        cardValuesMap.put("JACK", "11");
+        cardValuesMap.put("QUEEN", "12");
+        cardValuesMap.put("KING", "13");
+        return cardValuesMap;
     }
 
     public Hand drawCards(String deckId, int numCards) {
         String url = DeckOfCardsApiEndpoints.DRAW_CARDS.getUrl();
         Hand response = restTemplate.getForObject(url, Hand.class, deckId, numCards);
+        if (response == null ) {
+            throw new EmptyDeckException();
+        }
         int totalSum = 0;
 
         // Mapear valores das cartas para valores numéricos
@@ -70,15 +84,6 @@ public class DeckOfCardsService {
         return response;
     }
 
-    private Map<String, String> createCardValuesMap() {
-        Map<String, String> cardValuesMap = new HashMap<>();
-        cardValuesMap.put("ACE", "1");
-        cardValuesMap.put("JACK", "11");
-        cardValuesMap.put("QUEEN", "12");
-        cardValuesMap.put("KING", "13");
-        return cardValuesMap;
-    }
-
     public int CardsRemaining(String deckId) {
         String url = DeckOfCardsApiEndpoints.CARDS_REMAINING.getUrl();
         CardsRemaining cardsRemaining = restTemplate.getForObject(url, CardsRemaining.class, deckId);
@@ -96,6 +101,32 @@ public class DeckOfCardsService {
         }
         return hands;
     }
+
+    private void saveWinners(Game game, List<Hand> hands, List<String> highestSumPlayers) {
+        for (Hand hand : hands) {
+            if (highestSumPlayers.contains(hand.getPlayer().getName())) {
+                Winner winner = new Winner(game, hand.getPlayer(), hand.getTotalSum());
+                winnerRepository.save(winner);
+            }
+        }
+    }
+
+    private String buildResultString(List<String> highestSumPlayers, int highestSum) {
+        StringBuilder result = new StringBuilder();
+
+        if (highestSumPlayers.size() == 1) {
+            result.append("Vencedor é ").append(highestSumPlayers.get(0)).append(" com ").append(highestSum).append(" pontos");
+        } else {
+            result.append("Empate entre os jogadores: ");
+            for (String player : highestSumPlayers) {
+                result.append(player).append(" ");
+            }
+            result.append("com ").append(highestSum).append(" pontos");
+        }
+
+        return result.toString();
+    }
+
     @Transactional
     public String playDeckOfCards() {
         Game game = new Game(LocalDate.now());
@@ -127,25 +158,7 @@ public class DeckOfCardsService {
             }
         }
 
-        for (Hand hand : hands) {
-            if (highestSumPlayers.contains(hand.getPlayer().getName())) {
-                Winner winner = new Winner(game, hand.getPlayer(), hand.getTotalSum());
-                winnerRepository.save(winner);
-            }
-        }
-
-        StringBuilder result = new StringBuilder();
-        if (highestSumPlayers.size() == 1) {
-            result.append("Vencedor é ").append(highestSumPlayers.get(0)).append(" com ").append(highestSum).append(" pontos");
-        } else {
-            result.append("Empate entre os jogadores: ");
-            for (String player : highestSumPlayers) {
-                result.append(player).append(" ");
-            }
-            result.append("com ").append(highestSum).append(" pontos");
-        }
-
-        return result.toString();
+        return buildResultString(highestSumPlayers,highestSum);
     }
 }
 
