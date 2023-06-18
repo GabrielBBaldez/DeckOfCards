@@ -157,6 +157,7 @@ public class DeckOfCardsService {
                 highestSumPlayers.add(player.getName());
             }
         }
+        saveWinners(game, hands, highestSumPlayers);
 
         return buildResultString(highestSumPlayers,highestSum);
     }
