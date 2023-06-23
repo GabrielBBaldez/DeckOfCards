@@ -27,8 +27,14 @@ Este projeto consiste na criação de uma REST API em conjunto com a API deckofc
 1. Certifique-se de ter o Java 17 instalado.
 2. Instale o IntelliJ IDEA (ou outra IDE de sua preferência) e configure o projeto.
 3. Importe o projeto para o IntelliJ IDEA.
-4. No terminal da IDE, execute o seguinte comando para iniciar o banco de dados PostgreSQL usando Docker:
- ```
+4. No terminal da IDE, execute os seguintes comandos para iniciar o banco de dados PostgreSQL usando Docker:
+```
+   cd api
+```
+```
+   cd docker
+```
+```
  docker-compose up
 ```
 6. As tabelas são criadas automaticamente após o primeiro start na aplicação.
