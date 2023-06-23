@@ -46,3 +46,5 @@ Este projeto consiste na criação de uma REST API em conjunto com a API deckofc
 
 ## Exemplo de atulização
 ![Exemplo](Exemplo.png)
+## Exemplo de como usar o contêiner  
+![Exemplo](ExemploDocker.png)
