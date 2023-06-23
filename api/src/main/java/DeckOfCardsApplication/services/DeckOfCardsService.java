@@ -23,13 +23,14 @@ import java.util.Map;
 public class DeckOfCardsService {
 
     @Autowired
-    private GameRepository gameRepository;
+    private GameService gameService;
     @Autowired
-    private PlayerRepository playerRepository;
+    private PlayerService playerService;
     @Autowired
-    private GameplayerRepository gameplayerRepository;
+    private GamePlayerService gamePlayerService;
+
     @Autowired
-    private WinnerRepository winnerRepository;
+    private WinnerService winnerService;
 
     private RestTemplate restTemplate;
 
@@ -95,8 +96,7 @@ public class DeckOfCardsService {
         for (int i = 0; i < 5; i++) {
             Hand hand = drawCards(deckId, 5);
             hands.add(hand);
-            Player player = new Player();
-            player.setName("Jogador: " + String.valueOf(i + 1));
+            Player player = playerService.createPlayer("Jogador: " + String.valueOf(i + 1));
             hand.setPlayer(player);
         }
         return hands;
@@ -105,8 +105,8 @@ public class DeckOfCardsService {
     private void saveWinners(Game game, List<Hand> hands, List<String> highestSumPlayers) {
         for (Hand hand : hands) {
             if (highestSumPlayers.contains(hand.getPlayer().getName())) {
-                Winner winner = new Winner(game, hand.getPlayer(), hand.getTotalSum());
-                winnerRepository.save(winner);
+                Winner winner = winnerService.createWinner(game, hand.getPlayer(), hand.getTotalSum());
+                winnerService.saveWinner(winner);
             }
         }
     }
@@ -130,7 +130,7 @@ public class DeckOfCardsService {
     @Transactional
     public String playDeckOfCards() {
         Game game = new Game(LocalDate.now());
-        gameRepository.save(game);
+        gameService.saveGame(game);
         String deckId = createDeck();
         List<Hand> hands = createPlayersAndFiveHands(deckId);
         int highestSum = Integer.MIN_VALUE;
@@ -138,11 +138,9 @@ public class DeckOfCardsService {
 
         for (Hand hand : hands) {
             Player player = hand.getPlayer();
-            playerRepository.save(player);
-
-            GamePlayer gamePlayer = new GamePlayer(game, player);
-            gameplayerRepository.save(gamePlayer);
-
+            playerService.savePlayer(player);
+            GamePlayer gamePlayer = gamePlayerService.createGamePlayer(game,player);
+            gamePlayerService.saveGamePlayer(gamePlayer);
             int totalSum = hand.getCards().stream()
                     .mapToInt(card -> Integer.parseInt(card.getValue()))
                     .sum();
