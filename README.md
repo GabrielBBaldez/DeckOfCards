@@ -1,6 +1,4 @@
-# Teste de Backend Klab
-
-Este projeto consiste na criação de uma REST API em conjunto com a API deckofcardsapi.
+# Este projeto consiste na criação de uma REST API em conjunto com a API deckofcardsapi.
 
 ## Documentação da API
 
